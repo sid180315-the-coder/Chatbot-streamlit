@@ -258,7 +258,7 @@ if st.session_state.state2 == "Approved":
 
 
 if st.session_state.state2 == "Not approved":
-    pas = st.text_input("Enter Password", "Enter Secret Password")
+    pas = st.text_input("Enter Password", placeholder="Enter Secret Password")
 
     if st.button("Check"):
         if pas == "supersecret180315@outlook.com180315_202929":
