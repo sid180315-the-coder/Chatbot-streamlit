@@ -1,8 +1,6 @@
 import os
 import streamlit as st
 from faster_whisper import WhisperModel
-import pandas as pd 
-import numpy as np
 from streamlit_mic_recorder import mic_recorder
 from dotenv import load_dotenv
 from email.message import EmailMessage
@@ -12,7 +10,7 @@ from bs4 import BeautifulSoup
 from google import genai  # NEW: Using the modern SDK
 from google.genai import types # For tool definitions
 import time
-import io
+import tempfile
 
 # Load environment variables from the .env file
 # Using os.path.dirname(__file__) ensures the file is found even if you run the script from a different folder.
@@ -230,24 +228,27 @@ if st.session_state.state2 == "Approved":
         if st.button("Speak"):
             if audio: # Make sure there is actually a recording
                 with st.spinner("Listening..."):
-                # 1. Show the audio player so you can hear it
-                    st.audio(audio['bytes'])
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
+                        tmp_file.write(audio['bytes'])
+                        tmp_file_path = tmp_file.name
+
+                        try:
+                # 2. Point Whisper to the file path instead of the BytesIO buffer
+                            segments, info = model.transcribe(tmp_file_path, beam_size=5)
                 
-                # 2. Convert bytes to text using your Whisper model
-                    # NOTE: Whisper usually needs a file path or a specific buffer
+                # 3. Collect the text
+                            transcript = " ".join([segment.text for segment in segments])
                 
-                    audio_bio = io.BytesIO(audio['bytes'])
+                # 4. Update the session state
+                            st.session_state.user_prompt_val = transcript.strip()
                 
-                # Using your Whisper model defined at the top
-                    segments, info = model.transcribe(audio_bio, beam_size=5)
-                
-                # Combine the segments into one string
-                    transcript = " ".join([segment.text for segment in segments])
-                
-                # 3. Save the actual words to your prompt variable
-                    st.session_state.user_prompt_val = transcript
-                
-                st.rerun()
+                        finally:
+                # 5. Clean up the temp file so the server doesn't get cluttered
+                            if os.path.exists(tmp_file_path):
+                                os.remove(tmp_file_path)
+            
+            # 6. Rerun to push the text into the Prompt Area
+                    st.rerun()
         
         
     with col2:
