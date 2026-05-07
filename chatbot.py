@@ -232,7 +232,7 @@ if st.session_state.state2 == "Approved":
                         tmp_file.write(audio['bytes'])
                         tmp_file_path = tmp_file.name
 
-                        try:
+                    try:
                 # 2. Point Whisper to the file path instead of the BytesIO buffer
                             segments, info = model.transcribe(tmp_file_path, beam_size=5)
                 
@@ -242,7 +242,7 @@ if st.session_state.state2 == "Approved":
                 # 4. Update the session state
                             st.session_state.user_prompt_val = transcript.strip()
                 
-                        finally:
+                    finally:
                 # 5. Clean up the temp file so the server doesn't get cluttered
                             if os.path.exists(tmp_file_path):
                                 os.remove(tmp_file_path)
