@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from google import genai  # NEW: Using the modern SDK
 from google.genai import types # For tool definitions
 import time
+import io
 
 # Load environment variables from the .env file
 # Using os.path.dirname(__file__) ensures the file is found even if you run the script from a different folder.
@@ -227,13 +228,26 @@ if st.session_state.state2 == "Approved":
 
     with col1:
         if st.button("Speak"):
-            with st.spinner("Agent is listening..."):
-                result = st.audio(audio['bytes'])
-                st.session_state.user_prompt_val = result
-        
-        # Refresh the page to show the text
-            st.rerun()
-
+            if audio: # Make sure there is actually a recording
+                with st.spinner("Ai Listening..."):
+                # 1. Show the audio player so you can hear it
+                    st.audio(audio['bytes'])
+                
+                # 2. Convert bytes to text using your Whisper model
+                    # note: Whisper usually needs a file path or a specific buffer
+                
+                    audio_bio = io.BytesIO(audio['bytes'])
+                
+                # Using your Whisper model defined at the top
+                    segments, info = model.transcribe(audio_bio, beam_size=5)
+                
+                # Combine the segments into one string
+                    transcript = " ".join([segment.text for segment in segments])
+                
+                # 3. Save the actual words to your prompt variable
+                    st.session_state.user_prompt_val = transcript
+                
+                st.rerun()
         
         
     with col2:
