@@ -259,13 +259,14 @@ if state == "Approved":
 if state == "Not approved":
     pas = st.text_input("Enter Password", "Enter Secret Password")
 
-    if pas == "supersecret180315@outlook.com180315_202929":
-        state = "Approved"
-        st.rerun()
-    else:
-        st.write("Incorrect")
-        if pas != "":
+    if st.button("Check"):
+        if pas == "supersecret180315@outlook.com180315_202929":
+            state = "Approved"
             st.rerun()
+        else:
+            st.write("Incorrect")
+            if pas != "":
+                st.rerun()
 
         
 
