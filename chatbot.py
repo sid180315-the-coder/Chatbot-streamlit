@@ -264,6 +264,6 @@ elif state == "Not approved":
         st.rerun()
     else:
         st.write("Incorrect")
-        st.rerun()
+        
 
 
