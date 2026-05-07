@@ -234,7 +234,7 @@ if st.session_state.state2 == "Approved":
                     st.audio(audio['bytes'])
                 
                 # 2. Convert bytes to text using your Whisper model
-                    # note: Whisper usually needs a file path or a specific buffer
+                    # NOTE: Whisper usually needs a file path or a specific buffer
                 
                     audio_bio = io.BytesIO(audio['bytes'])
                 
