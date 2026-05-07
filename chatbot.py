@@ -30,6 +30,8 @@ audio = mic_recorder(
     key='recorder'
 )
 
+state = "Not approved"
+
 # Fetch the Gemini key you set in the terminal.
 gemini_key = os.getenv("supergkey")
 
@@ -207,9 +209,11 @@ if "ai_memory" not in st.session_state:
 
 st.title("Chatbot")
 
+if state == "Approved":
+
 # 2. THE OUTPUT BOX
 # We tell this box: "Your content is whatever is inside ai_memory"
-st.text_area(
+    st.text_area(
     "ai response:", 
     value=st.session_state.ai_memory, 
     height=200, 
@@ -217,40 +221,49 @@ st.text_area(
 )
 
 # 3. THE INPUT BOX
-user_msg = st.text_area("Prompt area", placeholder="Enter message", height=200, value=st.session_state.user_prompt_val)
+    user_msg = st.text_area("Prompt area", placeholder="Enter message", height=200, value=st.session_state.user_prompt_val)
 
-st.write("**© by Sidharth Gupta, 2026**")
+    st.write("**© by Sidharth Gupta, 2026**")
 
 # 4. THE BUTTONS
-col1, col2 = st.columns(2)
+    col1, col2 = st.columns(2)
 
-with col1:
-    if st.button("Speak"):
-        with st.spinner("Agent is listening..."):
-            result = st.audio(audio['bytes'])
-            st.session_state.user_prompt_val = result
+    with col1:
+        if st.button("Speak"):
+            with st.spinner("Agent is listening..."):
+                result = st.audio(audio['bytes'])
+                st.session_state.user_prompt_val = result
         
         # Refresh the page to show the text
-        st.rerun()
+            st.rerun()
 
         
         
-with col2:
-    if st.button("Send"):
-        if user_msg:
-            with st.spinner("Agent is thinking..."):
+    with col2:
+        if st.button("Send"):
+            if user_msg:
+                with st.spinner("Agent is thinking..."):
                 # Call your chat function
-                response2 = chat(user_msg)
+                    response2 = chat(user_msg)
                 
                 # SAVE the result to the memory we linked above
-                st.session_state.ai_memory = f"User: {user_msg}\n\nAI: {response2}"
+                    st.session_state.ai_memory = f"User: {user_msg}\n\nAI: {response2}"
                 
                 # REFRESH the page so the box at the top updates
-                st.rerun()
+                    st.rerun()
 
 
 
 
 
-# python -m streamlit run Projects/ai/chatbot.py
+elif state == "Not approved":
+    pas = st.text_input("Enter Password", "Enter Secret Password")
+
+    if pas == "supersecret180315@outlook.com180315_202929":
+        state = "Approved"
+        st.rerun()
+    else:
+        st.write("Incorrect")
+        st.rerun()
+
 
