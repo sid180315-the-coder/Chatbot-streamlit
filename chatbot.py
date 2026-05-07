@@ -214,15 +214,11 @@ if st.session_state.state2 == "Approved":
 
 # 2. THE OUTPUT BOX
 # We tell this box: "Your content is whatever is inside ai_memory"
-    st.text_area(
-    "ai response:", 
-    value=st.session_state.ai_memory, 
-    height=200, 
-    disabled=True
-)
-
-# 3. THE INPUT BOX
     user_msg = st.text_area("Prompt area", placeholder="Enter message", height=200, value=st.session_state.user_prompt_val)
+
+    with st.container(border=True):
+        st.write("**AI Response:**")
+        st.write(st.session_state.ai_memory)
 
     st.write("**© by Sidharth Gupta, 2026**")
 
