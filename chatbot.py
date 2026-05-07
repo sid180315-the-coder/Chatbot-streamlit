@@ -31,7 +31,7 @@ audio = mic_recorder(
 )
 
 if "state2" not in st.session_state:
-    st.session_state.state = "Not approved"
+    st.session_state.state2 = "Not approved"
 
 # Fetch the Gemini key you set in the terminal.
 gemini_key = os.getenv("supergkey")
