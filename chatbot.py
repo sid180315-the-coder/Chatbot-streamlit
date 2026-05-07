@@ -262,7 +262,7 @@ if st.session_state.state2 == "Not approved":
 
     if st.button("Check"):
         if pas == "supersecret180315@outlook.com180315_202929":
-            state = "Approved"
+            st.session_state.state2 = "Approved"
             st.rerun()
         else:
             st.error()
