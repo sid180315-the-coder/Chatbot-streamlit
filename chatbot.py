@@ -30,7 +30,8 @@ audio = mic_recorder(
     key='recorder'
 )
 
-state = "Not approved"
+if "state2" not in st.session_state:
+    st.session_state.state = "Not approved"
 
 # Fetch the Gemini key you set in the terminal.
 gemini_key = os.getenv("supergkey")
@@ -209,7 +210,7 @@ if "ai_memory" not in st.session_state:
 
 st.title("Chatbot")
 
-if state == "Approved":
+if st.session_state.state2 == "Approved":
 
 # 2. THE OUTPUT BOX
 # We tell this box: "Your content is whatever is inside ai_memory"
@@ -256,7 +257,7 @@ if state == "Approved":
 
 
 
-if state == "Not approved":
+if st.session_state.state2 == "Not approved":
     pas = st.text_input("Enter Password", "Enter Secret Password")
 
     if st.button("Check"):
@@ -264,9 +265,8 @@ if state == "Not approved":
             state = "Approved"
             st.rerun()
         else:
-            st.write("Incorrect")
-            if pas != "":
-                st.rerun()
+            st.error()
+            
 
         
 
