@@ -256,7 +256,7 @@ if state == "Approved":
 
 
 
-elif state == "Not approved":
+if state == "Not approved":
     pas = st.text_input("Enter Password", "Enter Secret Password")
 
     if pas == "supersecret180315@outlook.com180315_202929":
