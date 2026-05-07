@@ -229,7 +229,7 @@ if st.session_state.state2 == "Approved":
     with col1:
         if st.button("Speak"):
             if audio: # Make sure there is actually a recording
-                with st.spinner("Ai Listening..."):
+                with st.spinner("Listening..."):
                 # 1. Show the audio player so you can hear it
                     st.audio(audio['bytes'])
                 
