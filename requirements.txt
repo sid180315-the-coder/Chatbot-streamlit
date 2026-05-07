@@ -3,7 +3,7 @@ streamlit-mic-recorder
 faster-whisper
 pandas
 numpy
-duckduckgo-search
+ddgs==9.14.1
 requests
 beautifulsoup4
 google-genai
