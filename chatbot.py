@@ -258,7 +258,7 @@ if st.session_state.state2 == "Approved":
                     response2 = chat(user_msg)
                 
                 # SAVE the result to the memory we linked above
-                    st.session_state.ai_memory = f"User: {user_msg}\n\nAI: {response2}"
+                    st.session_state.ai_memory += f"User: {user_msg}\n\nAI: {response2}"
                 
                 # REFRESH the page so the box at the top updates
                     st.rerun()
