@@ -275,7 +275,7 @@ if st.session_state.state2 == "Not approved":
             st.session_state.state2 = "Approved"
             st.rerun()
         else:
-            st.error()
+            st.error("Access Denied", icon="🚫")
             
 
         
