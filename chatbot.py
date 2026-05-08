@@ -226,29 +226,28 @@ if st.session_state.state2 == "Approved":
 
     with col1:
         if st.button("Speak"):
-            if audio: # Make sure there is actually a recording
-                with st.spinner("Listening..."):
-                    with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
-                        tmp_file.write(audio['bytes'])
-                        tmp_file_path = tmp_file.name
+            if audio:
+                audio_hash = hash(audio['bytes'])
+    
+                if "last_audio_hash" not in st.session_state or st.session_state.last_audio_hash != audio_hash:
+                    with st.spinner("Writing down what you said..."):
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as tmp_file:
+                            tmp_file.write(audio['bytes'])
+                            tmp_file_path = tmp_file.name
 
-                    try:
-                # 2. Point Whisper to the file path instead of the BytesIO buffer
+                        try:
                             segments, info = model.transcribe(tmp_file_path, beam_size=5)
-                
-                # 3. Collect the text
                             transcript = " ".join([segment.text for segment in segments])
                 
-                # 4. Update the session state
+                # Update the state
                             st.session_state.user_prompt_val = transcript.strip()
+                # Remember this recording so we don't transcribe it again in a loop
+                            st.session_state.last_audio_hash = audio_hash
                 
-                    finally:
-                # 5. Clean up the temp file so the server doesn't get cluttered
+                            st.rerun()
+                        finally:
                             if os.path.exists(tmp_file_path):
                                 os.remove(tmp_file_path)
-            
-            # 6. Rerun to push the text into the Prompt Area
-                    st.rerun()
         
         
     with col2:
