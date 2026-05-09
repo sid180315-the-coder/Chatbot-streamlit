@@ -212,35 +212,24 @@ if "chat_session" not in st.session_state:
         )
 )
 
-
 def chat(prompt):
+
     response = st.session_state.chat_session.send_message(prompt)
 
-    parts = response.candidates[0].content.parts
-    result = response.text
+    for part in response.candidates[0].content.parts:
 
-    for part in parts:
-
-        function_call = getattr(part, "function_call", None)
-
-        if function_call is None:
+        fc = getattr(part, "function_call", None)
+        if not fc:
             continue
 
-        name = function_call.name
-        args     = dict(function_call.args)
-
-        if name in ["internet_search", "website_diver"]:
-            result = globals()[name](**args)
-
-        elif name in ["send_the_email", "send_discord_message"]:
+        if fc.name == "send_the_email":
             st.session_state.pending_action = {
-    "name": name,
-    "args": args
-}
-
+                "name": fc.name,
+                "args": dict(fc.args)
+            }
             return "Waiting for confirmation..."
 
-    return result
+    return response.text
     
     
 st.set_page_config(page_title="Chatbot", page_icon=":robot:", layout="wide")
