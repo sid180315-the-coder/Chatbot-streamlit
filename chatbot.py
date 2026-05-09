@@ -23,8 +23,6 @@ model = WhisperModel("base", device="cpu", compute_type="int8")
 if "user_prompt_val" not in st.session_state:
     st.session_state.user_prompt_val = ""
 
-if "confirm" not in st.session_state:
-    st.session_state.confirm = None
 
 audio = mic_recorder(
     start_prompt="Start Recording",
@@ -59,14 +57,16 @@ def confirm_action(title, description, *args, **kwargs):
 
     col1, col2 = st.columns(2)
 
-    if col1.button("✅ Confirm", key=title):
-        st.session_state.confirm = True
-
-    if col2.button("❌ Cancel", key=title + "_cancel"):
-        st.info("Cancelled")
-        st.session_state.confirm = False
+    if col1.button("✅ Confirm", key=f"{title}_confirm"):
+        st.rerun()
+        return True
     
-    return st.session_state.confirm  # No decision yet
+
+    if col2.button("❌ Cancel", key=f"{title}_cancel"):
+        st.info("Cancelled")
+        return False
+    
+    return None  # No decision yet
 
 def send_the_email(receiver: str, subject: str, body: str):
     """
@@ -86,18 +86,28 @@ def send_the_email(receiver: str, subject: str, body: str):
         "recipients": receiver  
     }
 
+    checker = confirm_action(
+        title="Send Email",
+        description=f"To: {receiver}\nSubject: {subject}\nBody: {body}\n\nDo you want to proceed?"
+    )
 
-    
-    try:
-            response = requests.post(webhook_url, json=payload)
+
+
+    if checker is True:
+        try:
+                response = requests.post(webhook_url, json=payload)
         
-            if response.status_code in [200, 204]:
-                return f"Success: Real email successfully sent to {receiver}"
-            else:
-                return f"Error: {response.status_code} - {response.text}"
+                if response.status_code in [200, 204]:
+                    return f"Success: Real email successfully sent to {receiver}"
+                else:
+                    return f"Error: {response.status_code} - {response.text}"
             
-    except Exception as e:
-            return f"System Error: {str(e)}"
+        except Exception as e:
+                return f"System Error: {str(e)}"
+    elif checker is False:
+        return "Email sending cancelled by user."
+    else:
+        return None
    
 
 
