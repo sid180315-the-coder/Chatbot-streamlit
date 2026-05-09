@@ -205,7 +205,7 @@ chat_session = client.chats.create(
                  send_the_email
                  ],
         # We MUST use automatic function calling to handle the loops in ONE session
-        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
+        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False),
         system_instruction="Search Google first, then use your tools to act on the info."
         
         )
@@ -217,32 +217,38 @@ def chat(prompt):
     try:
         response = chat_session.send_message(prompt)
 
+        result = response.text  # fallback if no tool is used
+
         parts = response.candidates[0].content.parts
-        result = response.text  # fallback
 
         for part in parts:
 
-            if hasattr(part, "function_call"):
+            if not hasattr(part, "function_call"):
+                continue
 
-                name = part.function_call.name
-                args = dict(part.function_call.args)
+            name = part.function_call.name
+            args = dict(part.function_call.args)
 
-                if name == "internet_search":
-                    result = internet_search(**args)
+            # SAFE TOOLS (auto run)
+            if name in ["internet_search", "website_diver"]:
+                result = globals()[name](**args)
 
-                elif name == "website_diver":
-                    result = website_diver(**args)
+            # DANGEROUS TOOLS (confirm first)
+            elif name in ["send_the_email", "send_discord_message"]:
 
-                elif name == "send_the_email":
-                    check = confirm_action(
-                        title="Send Email",
-                        description=f"To: {args['receiver']}\nSubject: {args['subject']}\nBody: {args['body']}"
-                    )
+                check = confirm_action(
+                    title=f"{name}",
+                    description=str(args)
+                )
 
-                    if check:
-                        result = send_the_email(**args)
-                    else:
-                        result = "Cancelled"
+                if check is True:
+                    result = globals()[name](**args)
+
+                elif check is False:
+                    result = "Cancelled"
+
+                else:
+                    result = None  # waiting state
 
         return result
 
