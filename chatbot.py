@@ -52,7 +52,7 @@ tools_list = [{"google_search_retrieval": {"dynamic_retrieval_config": {"mode": 
 import streamlit as st
 
 def confirm_action(title, description, on_confirm, *args, **kwargs):
-    st.warning(f"⚠️ {title}")
+    st.warning(f"⚠️ {title}, YOU ARE ABOUT TO PERFORM THIS ACTION! ⚠️")
     st.write(description)
 
     col1, col2 = st.columns(2)
@@ -89,7 +89,7 @@ def send_the_email(receiver: str, subject: str, body: str):
     subject=subject,
     body=body)
 
-
+    time.sleep(10)
     if checker:
         try:
             response = requests.post(webhook_url, json=payload)
