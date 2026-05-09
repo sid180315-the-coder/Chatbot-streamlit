@@ -23,6 +23,9 @@ model = WhisperModel("base", device="cpu", compute_type="int8")
 if "user_prompt_val" not in st.session_state:
     st.session_state.user_prompt_val = ""
 
+if "confirm" not in st.session_state:
+    st.session_state.confirm = None
+
 audio = mic_recorder(
     start_prompt="Start Recording",
     stop_prompt="Stop Recording",
@@ -58,11 +61,11 @@ def confirm_action(title, description, on_confirm, *args, **kwargs):
     col1, col2 = st.columns(2)
 
     if col1.button("✅ Confirm", key=title):
-        return True
+        st.session_state.confirm = True
 
     if col2.button("❌ Cancel", key=title + "_cancel"):
         st.info("Cancelled")
-        return False
+        st.session_state.confirm = False
     
     return None  # No decision yet
 
