@@ -23,6 +23,9 @@ model = WhisperModel("base", device="cpu", compute_type="int8")
 if "user_prompt_val" not in st.session_state:
     st.session_state.user_prompt_val = ""
 
+if "confirm" not in st.session_state:
+    st.session_state.confirm = None
+
 
 audio = mic_recorder(
     start_prompt="Start Recording",
@@ -58,15 +61,17 @@ def confirm_action(title, description, *args, **kwargs):
     col1, col2 = st.columns(2)
 
     if col1.button("✅ Confirm", key=f"{title}_confirm"):
+        st.session_state.confirm = True
         st.rerun()
-        return True
     
 
     if col2.button("❌ Cancel", key=f"{title}_cancel"):
         st.info("Cancelled")
-        return False
+        st.session_state.confirm = False
+
+        
     
-    return None  # No decision yet
+    return st.session_state.confirm  # No decision yet
 
 def send_the_email(receiver: str, subject: str, body: str):
     """
@@ -95,16 +100,18 @@ def send_the_email(receiver: str, subject: str, body: str):
 
     if checker is True:
         try:
-                response = requests.post(webhook_url, json=payload)
+            response = requests.post(webhook_url, json=payload)
+            st.session_state.confirm = None  # Reset confirmation state after action
         
-                if response.status_code in [200, 204]:
+            if response.status_code in [200, 204]:
                     return f"Success: Real email successfully sent to {receiver}"
-                else:
+            else:
                     return f"Error: {response.status_code} - {response.text}"
             
         except Exception as e:
                 return f"System Error: {str(e)}"
     elif checker is False:
+        st.session_state.confirm = None  # Reset confirmation state after action
         return "Email sending cancelled by user."
     else:
         return None
