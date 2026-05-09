@@ -49,6 +49,21 @@ tools_list = [{"google_search_retrieval": {"dynamic_retrieval_config": {"mode": 
 
 
 # define special functions before the chat session is made.
+import streamlit as st
+
+def confirm_action(title, description, on_confirm, *args, **kwargs):
+    st.warning(f"⚠️ {title}")
+    st.write(description)
+
+    col1, col2 = st.columns(2)
+
+    if col1.button("✅ Confirm", key=title):
+        return True
+
+    if col2.button("❌ Cancel", key=title + "_cancel"):
+        st.info("Cancelled")
+        return False
+
 def send_the_email(receiver: str, subject: str, body: str):
     """
     Sends a real email via Make.com.
@@ -67,16 +82,27 @@ def send_the_email(receiver: str, subject: str, body: str):
         "recipients": receiver  
     }
 
-    try:
-        response = requests.post(webhook_url, json=payload)
+    checker = confirm_action( title="Send Email",
+    description=f"To: {receiver}\nSubject: {subject}\nBody: {body}",
+    on_confirm=send_the_email,
+    to=receiver,
+    subject=subject,
+    body=body)
+
+
+    if checker:
+        try:
+            response = requests.post(webhook_url, json=payload)
         
-        if response.status_code in [200, 204]:
-            return f"Success: Real email successfully sent to {receiver}"
-        else:
-            return f"Error: {response.status_code} - {response.text}"
+            if response.status_code in [200, 204]:
+                return f"Success: Real email successfully sent to {receiver}"
+            else:
+                return f"Error: {response.status_code} - {response.text}"
             
-    except Exception as e:
-        return f"System Error: {str(e)}"
+        except Exception as e:
+            return f"System Error: {str(e)}"
+    else:
+        return "Email sending cancelled by user."
    
 
 
