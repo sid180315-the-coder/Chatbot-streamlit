@@ -196,8 +196,8 @@ def send_discord_message(content: str):
     
 # THE GOLDLY AGENT AND HIS TOOLS AKA. CHAT SESSION 🧠🔥🏆
 
-
-chat_session = client.chats.create(
+if "chat_session" not in st.session_state:
+    st.session_state.chat_session = client.chats.create(
     model="gemini-2.5-flash",
     config=types.GenerateContentConfig(
         tools=[internet_search, 
@@ -214,7 +214,7 @@ chat_session = client.chats.create(
 
 
 def chat(prompt):
-    response = chat_session.send_message(prompt)
+    response = st.session_state.chat_session.send_message(prompt)
 
     parts = response.candidates[0].content.parts
     result = response.text
