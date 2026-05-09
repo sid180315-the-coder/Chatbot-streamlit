@@ -91,30 +91,22 @@ def send_the_email(receiver: str, subject: str, body: str):
         "recipients": receiver  
     }
 
-    checker = confirm_action(
-        title="Send Email",
-        description=f"To: {receiver}\nSubject: {subject}\nBody: {body}\n\nDo you want to proceed?"
-    )
 
 
 
-    if checker is True:
-        try:
-            response = requests.post(webhook_url, json=payload)
-            st.session_state.confirm = None  # Reset confirmation state after action
-        
-            if response.status_code in [200, 204]:
-                    return f"Success: Real email successfully sent to {receiver}"
-            else:
-                    return f"Error: {response.status_code} - {response.text}"
-            
-        except Exception as e:
-                return f"System Error: {str(e)}"
-    elif checker is False:
+    
+    try:
+        response = requests.post(webhook_url, json=payload)
         st.session_state.confirm = None  # Reset confirmation state after action
-        return "Email sending cancelled by user."
-    else:
-        return None
+        
+        if response.status_code in [200, 204]:
+            return f"Success: Real email successfully sent to {receiver}"
+        else:
+            return f"Error: {response.status_code} - {response.text}"
+            
+    except Exception as e:
+        return f"System Error: {str(e)}"
+    
    
 
 
@@ -213,7 +205,7 @@ chat_session = client.chats.create(
                  send_the_email
                  ],
         # We MUST use automatic function calling to handle the loops in ONE session
-        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False),
+        automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         system_instruction="Search Google first, then use your tools to act on the info."
         
         )
@@ -222,19 +214,38 @@ chat_session = client.chats.create(
 
 def chat(prompt):
 
-
-    if not gemini_key:
-        return "Error: GEMINI_API_KEY not found. Ensure you restarted VS Code after using 'setx'."
-
     try:
-        
-        
         response = chat_session.send_message(prompt)
-        time.sleep(20)
-        
 
-        return response.text
-    
+        parts = response.candidates[0].content.parts
+        result = response.text  # fallback
+
+        for part in parts:
+
+            if hasattr(part, "function_call"):
+
+                name = part.function_call.name
+                args = dict(part.function_call.args)
+
+                if name == "internet_search":
+                    result = internet_search(**args)
+
+                elif name == "website_diver":
+                    result = website_diver(**args)
+
+                elif name == "send_the_email":
+                    check = confirm_action(
+                        title="Send Email",
+                        description=f"To: {args['receiver']}\nSubject: {args['subject']}\nBody: {args['body']}"
+                    )
+
+                    if check:
+                        result = send_the_email(**args)
+                    else:
+                        result = "Cancelled"
+
+        return result
+
     except Exception as e:
         return f"Gemini API Error: {e}"
     
