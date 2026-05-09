@@ -37,10 +37,10 @@ if "state2" not in st.session_state:
     st.session_state.state2 = "Not approved"
 
 # Fetch the Gemini key you set in the terminal.
-gemini_key = os.getenv("supergkey")
+#gemini_key = os.getenv("supergkey")
 
 # back-up key
-#gemini_key = os.getenv("geminikey2")
+gemini_key = os.getenv("geminikey2")
 
 instruction = "If you need to search and then use a tool, perform the search first, summarize it, and then call the tool in a separate step."
 
