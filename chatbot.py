@@ -233,17 +233,12 @@ def chat(prompt):
             result = globals()[name](**args)
 
         elif name in ["send_the_email", "send_discord_message"]:
+            st.session_state.pending_action = {
+    "name": name,
+    "args": args
+}
 
-            check = confirm_action(
-            title=name,
-            description=str(args)
-        )
-
-            if check is True:
-                result = globals()[name](**args)
-
-            elif check is False:
-                result = "Cancelled"
+            return "Waiting for confirmation..."
 
     return result
     
@@ -255,6 +250,37 @@ if "ai_memory" not in st.session_state:
     st.session_state.ai_memory = ""
 
 st.title("Chatbot")
+if "pending_action" in st.session_state:
+
+    action = st.session_state.pending_action
+
+    st.warning("⚠️ Confirm Action")
+
+    st.write(action)
+
+    col1, col2 = st.columns(2)
+
+    if col1.button("✅ Confirm"):
+
+        name = action["name"]
+        args = action["args"]
+
+        result = globals()[name](**args)
+
+        st.success(result)
+
+        del st.session_state.pending_action
+
+        st.rerun()
+
+    if col2.button("❌ Cancel"):
+
+        st.info("Cancelled")
+
+        del st.session_state.pending_action
+
+        st.rerun()
+
 
 if st.session_state.state2 == "Approved":
 
