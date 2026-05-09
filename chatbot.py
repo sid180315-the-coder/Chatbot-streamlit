@@ -91,7 +91,7 @@ def send_the_email(receiver: str, subject: str, body: str):
     subject=subject,
     body=body)
 
-    if checker:
+    if checker == True:
         try:
             response = requests.post(webhook_url, json=payload)
         
