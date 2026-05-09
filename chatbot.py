@@ -53,7 +53,7 @@ tools_list = [{"google_search_retrieval": {"dynamic_retrieval_config": {"mode": 
 
 # define special functions before the chat session is made.
 
-def confirm_action(title, description, on_confirm, *args, **kwargs):
+def confirm_action(title, description, *args, **kwargs):
     st.warning(f"⚠️ {title}, YOU ARE ABOUT TO PERFORM THIS ACTION! ⚠️")
     st.write(description)
 
@@ -88,7 +88,6 @@ def send_the_email(receiver: str, subject: str, body: str):
 
     checker = confirm_action( title="Send Email",
     description=f"To: {receiver}\nSubject: {subject}\nBody: {body}",
-    on_confirm=send_the_email,
     to=receiver,
     subject=subject,
     body=body)
