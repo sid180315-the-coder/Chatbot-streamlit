@@ -67,7 +67,7 @@ def confirm_action(title, description, on_confirm, *args, **kwargs):
         st.info("Cancelled")
         st.session_state.confirm = False
     
-    return None  # No decision yet
+    return st.session_state.confirm  # No decision yet
 
 def send_the_email(receiver: str, subject: str, body: str):
     """
