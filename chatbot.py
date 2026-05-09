@@ -52,7 +52,6 @@ tools_list = [{"google_search_retrieval": {"dynamic_retrieval_config": {"mode": 
 
 
 # define special functions before the chat session is made.
-import streamlit as st
 
 def confirm_action(title, description, on_confirm, *args, **kwargs):
     st.warning(f"⚠️ {title}, YOU ARE ABOUT TO PERFORM THIS ACTION! ⚠️")
