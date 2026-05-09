@@ -1,4 +1,5 @@
 import os
+from urllib import response
 import streamlit as st
 from faster_whisper import WhisperModel
 from streamlit_mic_recorder import mic_recorder
@@ -213,47 +214,38 @@ chat_session = client.chats.create(
 
 
 def chat(prompt):
+    response = chat_session.send_message(prompt)
 
-    try:
-        response = chat_session.send_message(prompt)
+    parts = response.candidates[0].content.parts
+    result = response.text
 
-        result = response.text  # fallback if no tool is used
+    for part in parts:
 
-        parts = response.candidates[0].content.parts
+        function_call = getattr(part, "function_call", None)
 
-        for part in parts:
+        if function_call is None:
+            continue
 
-            if not hasattr(part, "function_call"):
-                continue
+        name = function_call.name
+        args     = dict(function_call.args)
 
-            name = part.function_call.name
-            args = dict(part.function_call.args)
+        if name in ["internet_search", "website_diver"]:
+            result = globals()[name](**args)
 
-            # SAFE TOOLS (auto run)
-            if name in ["internet_search", "website_diver"]:
+        elif name in ["send_the_email", "send_discord_message"]:
+
+            check = confirm_action(
+            title=name,
+            description=str(args)
+        )
+
+            if check is True:
                 result = globals()[name](**args)
 
-            # DANGEROUS TOOLS (confirm first)
-            elif name in ["send_the_email", "send_discord_message"]:
+            elif check is False:
+                result = "Cancelled"
 
-                check = confirm_action(
-                    title=f"{name}",
-                    description=str(args)
-                )
-
-                if check is True:
-                    result = globals()[name](**args)
-
-                elif check is False:
-                    result = "Cancelled"
-
-                else:
-                    result = None  # waiting state
-
-        return result
-
-    except Exception as e:
-        return f"Gemini API Error: {e}"
+    return result
     
     
 st.set_page_config(page_title="Chatbot", page_icon=":robot:", layout="wide")
