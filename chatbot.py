@@ -63,6 +63,8 @@ def confirm_action(title, description, on_confirm, *args, **kwargs):
     if col2.button("❌ Cancel", key=title + "_cancel"):
         st.info("Cancelled")
         return False
+    
+    return None  # No decision yet
 
 def send_the_email(receiver: str, subject: str, body: str):
     """
@@ -89,7 +91,6 @@ def send_the_email(receiver: str, subject: str, body: str):
     subject=subject,
     body=body)
 
-    time.sleep(10)
     if checker:
         try:
             response = requests.post(webhook_url, json=payload)
