@@ -333,7 +333,7 @@ if st.session_state.state2 == "Not approved":
     pas = st.text_input("Enter Password", placeholder="Enter Secret Password")
 
     if st.button("Check"):
-        if pas == "supersecret180315@outlook.com180315_202929":
+        if pas == os.getenv("password180315209"):
             st.session_state.state2 = "Approved"
             st.rerun()
         else:
