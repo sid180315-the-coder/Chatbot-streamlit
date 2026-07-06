@@ -338,6 +338,8 @@ if st.session_state.state2 == "Not approved":
             st.rerun()
         else:
             st.error("Access Denied", icon="🚫")
+
+    st.write("Copyrighted by Sidharth Gupta, 2026")
             
 
         
